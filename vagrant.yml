@@ -1,0 +1,30 @@
+---
+# TOPOLOGY
+# here you can specify the topology that you want to create with vagrant in
+# order to test your roles
+nodes:
+  - name: test01
+    hostname: test01.local
+    groups:
+      - consul_cluster
+  - name: test02
+    hostname: test02.local
+    groups:
+      - consul_cluster
+  - name: test03
+    hostname: test03.local
+    groups:
+      - consul_cluster
+  - name: test04
+    hostname: test04.local
+# Here you can specify the variable common to all roles
+common:
+  ansible_host: localhost
+  ansible_become: true
+  ansible_ssh_user: vagrant
+  ansible_ssh_private_key_file: ~/.vagrant.d/insecure_private_key
+  proxy:
+# Here you can specify the group variables
+group_vars:
+  consul_cluster:
+    consul_bootstrap_hostname: test01.local
