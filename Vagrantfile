@@ -11,15 +11,16 @@ Vagrant.require_version ">= 1.7.0"
 
 Vagrant.configure(2) do |config|
 
-  settings['nodes'].each_index do |i|
-    vm_settings = settings['nodes'][i]
+  nodes = settings['nodes'].length
+  settings['nodes'].each_index do |index|
+    vm_settings = settings['nodes'][index]
     config.vm.define "node-#{vm_settings['name']}" do |node|
       # calculate the ssh port
-      host_ssh = vm_settings['ssh_host'].nil? ? (2200 + i) : vm_settings['ssh_host']
+      host_ssh = vm_settings['ssh_host'].nil? ? (2200 + index) : vm_settings['ssh_host']
       # calculate the hostname
       host_name = vm_settings['hostname'].nil? ? "node-#{vm_settings['name']}" : vm_settings['hostname']
       # calculate the internal network ip
-      ip_address = vm_settings['ip'].nil? ? "192.168.78.#{101 + i}" : vm_settings['ip']
+      ip_address = vm_settings['ip'].nil? ? "192.168.78.#{101 + index}" : vm_settings['ip']
 
       node.vm.box = default_vm_box if vm_settings['box'].nil?
       node.vm.hostname = host_name
@@ -46,18 +47,23 @@ Vagrant.configure(2) do |config|
         end
       end
       ansible_inventory.write()
-    end
-  end
 
-  config.vm.provision "hosts" do |provisioner|
-    provisioner.sync_hosts = true
-    provisioner.autoconfigure = true
-  end
-  config.vm.provision "ansible" do |ansible|
-    ansible.verbose = "v"
-    ansible.limit = "all"
-    ansible.playbook = "default.yml"
-    ansible.inventory_path = ansible_host_path
+      # hosts provision
+      node.vm.provision "hosts" do |provisioner|
+        provisioner.sync_hosts = true
+        provisioner.autoconfigure = true
+      end
+
+      # ansible provision
+      if index == (nodes - 1)
+        node.vm.provision "ansible" do |ansible|
+          ansible.verbose = "v"
+          ansible.limit = "all"
+          ansible.playbook = "default.yml"
+          ansible.inventory_path = ansible_host_path
+        end
+      end
+    end
   end
 
   #
