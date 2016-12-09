@@ -24,7 +24,7 @@ Vagrant.configure(2) do |config|
       node.vm.box = default_vm_box if vm_settings['box'].nil?
       node.vm.hostname = host_name
 
-      # internal network 
+      # internal network
       node.vm.network "private_network", ip: ip_address, virtualbox__intnet: true
 
       # set port and ssh config
@@ -35,6 +35,7 @@ Vagrant.configure(2) do |config|
       node.vm.network "forwarded_port", guest: 22, host: 2222, id: "ssh", disabled: true
       # use our port forwarding
       node.vm.network "forwarded_port", guest: 22, host: host_ssh
+      node.vm.synced_folder ".", "/vagrant", disabled: true
 
       # update the ansible inventory
       ansible_inventory['targets']["#{host_name} ansible_port=#{host_ssh}"] = nil
@@ -45,19 +46,18 @@ Vagrant.configure(2) do |config|
         end
       end
       ansible_inventory.write()
-
-      # provisioning
-      node.vm.provision "hosts" do |provisioner|
-        provisioner.sync_hosts = true
-        provisioner.autoconfigure = true
-      end
-      node.vm.provision "ansible" do |ansible|
-        ansible.verbose = "vv"
-        ansible.limit = "all"
-        ansible.playbook = "default.yml"
-        ansible.inventory_path = ansible_host_path
-      end
     end
+  end
+
+  config.vm.provision "hosts" do |provisioner|
+    provisioner.sync_hosts = true
+    provisioner.autoconfigure = true
+  end
+  config.vm.provision "ansible" do |ansible|
+    ansible.verbose = "v"
+    ansible.limit = "all"
+    ansible.playbook = "default.yml"
+    ansible.inventory_path = ansible_host_path
   end
 
   #
@@ -81,9 +81,14 @@ Vagrant.configure(2) do |config|
   #
   # Ansible proxy
   #
-  if Vagrant.has_plugin?("vagrant-proxyconf") && !settings['common']['proxy'].nil?
-    config.proxy.http     = settings['common']['proxy']
-    config.proxy.https    = settings['common']['proxy']
+  if Vagrant.has_plugin?("vagrant-proxyconf")
+    if ! settings['common']['proxy'].nil?
+      config.proxy.http     = settings['common']['proxy']
+      config.proxy.https    = settings['common']['proxy']
+    else
+      config.proxy.http = ''
+      config.proxy.https = ''
+    end
     config.proxy.no_proxy = "localhost,127.0.0.1"
   end
 end
