@@ -22,7 +22,7 @@ Vagrant.configure(2) do |config|
       # calculate the internal network ip
       ip_address = vm_settings['ip'].nil? ? "192.168.78.#{101 + index}" : vm_settings['ip']
 
-      node.vm.box = default_vm_box if vm_settings['box'].nil?
+      node.vm.box = vm_settings['box'].nil? ? default_vm_box : vm_settings['box']
       node.vm.hostname = host_name
 
       # internal network
@@ -57,7 +57,7 @@ Vagrant.configure(2) do |config|
       # ansible provision
       if index == (nodes - 1)
         node.vm.provision "ansible" do |ansible|
-          ansible.verbose = "v"
+          ansible.verbose = ""
           ansible.limit = "all"
           ansible.playbook = "default.yml"
           ansible.inventory_path = ansible_host_path
