@@ -1,4 +1,9 @@
+---
 - name: Testing role
   hosts: all
+  any_errors_fatal: true
+  pre_tasks:
+    - shell: ifup eth1
+      when: ansible_distribution == 'CentOS'
   roles:
-    - 'gchiesa.consul'
+    - 'gchiesa.shipyard'
