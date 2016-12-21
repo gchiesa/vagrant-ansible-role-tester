@@ -5,18 +5,29 @@
 nodes:
   - name: test01
     hostname: test01.local
+    # box: centos/7
     groups:
       - consul_cluster
+      - swarm_managers
+      - swarm_agents
   - name: test02
     hostname: test02.local
+    # box: centos/7
     groups:
       - consul_cluster
+      - swarm_managers
+      - swarm_agents
   - name: test03
     hostname: test03.local
+    # box: centos/7
     groups:
       - consul_cluster
+      - swarm_agents
   - name: test04
     hostname: test04.local
+    # box: centos/7
+    groups:
+      - swarm_agents
 # Here you can specify the variable common to all roles
 common:
   ansible_host: localhost
