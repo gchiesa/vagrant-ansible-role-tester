@@ -14,11 +14,11 @@ Vagrant.configure(2) do |config|
   nodes = settings['nodes'].length
   settings['nodes'].each_index do |index|
     vm_settings = settings['nodes'][index]
-    config.vm.define "node-#{vm_settings['name']}" do |node|
+    config.vm.define "#{vm_settings['name']}" do |node|
       # calculate the ssh port
       host_ssh = vm_settings['ssh_host'].nil? ? (2200 + index) : vm_settings['ssh_host']
       # calculate the hostname
-      host_name = vm_settings['hostname'].nil? ? "node-#{vm_settings['name']}" : vm_settings['hostname']
+      host_name = vm_settings['hostname'].nil? ? "#{vm_settings['name']}" : vm_settings['hostname']
       # calculate the internal network ip
       ip_address = vm_settings['ip'].nil? ? "192.168.78.#{101 + index}" : vm_settings['ip']
 
